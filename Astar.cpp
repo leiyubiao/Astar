@@ -17,13 +17,13 @@ void Astar::InitAstar(std::vector<std::vector<int>> &_maze)
 int Astar::calcG(Point *temp_start, Point *point)
 {
 	int extraG = (abs(point->x - temp_start->x) + abs(point->y - temp_start->y)) == 1 ? kCost1 : kCost2;
-	int parentG = point->parent == NULL ? 0 : point->parent->G; //Èç¹ûÊÇ³õÊ¼½Úµã£¬ÔòÆä¸¸½ÚµãÊÇ¿Õ  
+	int parentG = point->parent == NULL ? 0 : point->parent->G; //å¦‚æœæ˜¯åˆå§‹èŠ‚ç‚¹ï¼Œåˆ™å…¶çˆ¶èŠ‚ç‚¹æ˜¯ç©º  
 	return parentG + extraG;
 }
 
 int Astar::calcH(Point *point, Point *end)
 {
-	//ÓÃ¼òµ¥µÄÅ·¼¸ÀïµÃ¾àÀë¼ÆËãH£¬Õâ¸öHµÄ¼ÆËãÊÇ¹Ø¼ü£¬»¹ÓĞºÜ¶àËã·¨£¬Ã»ÉîÈëÑĞ¾¿^_^  
+	//ç”¨ç®€å•çš„æ¬§å‡ é‡Œå¾—è·ç¦»è®¡ç®—Hï¼Œè¿™ä¸ªHçš„è®¡ç®—æ˜¯å…³é”®ï¼Œè¿˜æœ‰å¾ˆå¤šç®—æ³•ï¼Œæ²¡æ·±å…¥ç ”ç©¶^_^  
 	return sqrt((double)(end->x - point->x)*(double)(end->x - point->x) + (double)(end->y - point->y)*(double)(end->y - point->y))*kCost1;
 }
 
@@ -47,17 +47,17 @@ Point *Astar::getLeastFpoint()
 
 Point *Astar::findPath(Point &startPoint, Point &endPoint, bool isIgnoreCorner)
 {
-	openList.push_back(new Point(startPoint.x, startPoint.y)); //ÖÃÈëÆğµã,¿½±´¿ª±ÙÒ»¸ö½Úµã£¬ÄÚÍâ¸ôÀë  
+	openList.push_back(new Point(startPoint.x, startPoint.y)); //ç½®å…¥èµ·ç‚¹,æ‹·è´å¼€è¾Ÿä¸€ä¸ªèŠ‚ç‚¹ï¼Œå†…å¤–éš”ç¦»  
 	while (!openList.empty())
 	{
-		auto curPoint = getLeastFpoint(); //ÕÒµ½FÖµ×îĞ¡µÄµã  
-		openList.remove(curPoint); //´Ó¿ªÆôÁĞ±íÖĞÉ¾³ı  
-		closeList.push_back(curPoint); //·Åµ½¹Ø±ÕÁĞ±í  
-		//1,ÕÒµ½µ±Ç°ÖÜÎ§°Ë¸ö¸ñÖĞ¿ÉÒÔÍ¨¹ıµÄ¸ñ×Ó  
+		auto curPoint = getLeastFpoint(); //æ‰¾åˆ°Få€¼æœ€å°çš„ç‚¹  
+		openList.remove(curPoint); //ä»å¼€å¯åˆ—è¡¨ä¸­åˆ é™¤  
+		closeList.push_back(curPoint); //æ”¾åˆ°å…³é—­åˆ—è¡¨  
+		//1,æ‰¾åˆ°å½“å‰å‘¨å›´å…«ä¸ªæ ¼ä¸­å¯ä»¥é€šè¿‡çš„æ ¼å­  
 		auto surroundPoints = getSurroundPoints(curPoint, isIgnoreCorner);
 		for (auto &target : surroundPoints)
 		{
-			//2,¶ÔÄ³Ò»¸ö¸ñ×Ó£¬Èç¹ûËü²»ÔÚ¿ªÆôÁĞ±íÖĞ£¬¼ÓÈëµ½¿ªÆôÁĞ±í£¬ÉèÖÃµ±Ç°¸ñÎªÆä¸¸½Úµã£¬¼ÆËãF G H  
+			//2,å¯¹æŸä¸€ä¸ªæ ¼å­ï¼Œå¦‚æœå®ƒä¸åœ¨å¼€å¯åˆ—è¡¨ä¸­ï¼ŒåŠ å…¥åˆ°å¼€å¯åˆ—è¡¨ï¼Œè®¾ç½®å½“å‰æ ¼ä¸ºå…¶çˆ¶èŠ‚ç‚¹ï¼Œè®¡ç®—F G H  
 			if (!isInList(openList, target))
 			{
 				target->parent = curPoint;
@@ -68,21 +68,34 @@ Point *Astar::findPath(Point &startPoint, Point &endPoint, bool isIgnoreCorner)
 
 				openList.push_back(target);
 			}
-			//3£¬¶ÔÄ³Ò»¸ö¸ñ×Ó£¬ËüÔÚ¿ªÆôÁĞ±íÖĞ£¬¼ÆËãGÖµ, Èç¹û±ÈÔ­À´µÄ´ó, ¾ÍÊ²Ã´¶¼²»×ö, ·ñÔòÉèÖÃËüµÄ¸¸½ÚµãÎªµ±Ç°µã,²¢¸üĞÂGºÍF  
+			//3ï¼Œå¯¹æŸä¸€ä¸ªæ ¼å­ï¼Œå®ƒåœ¨å¼€å¯åˆ—è¡¨ä¸­ï¼Œè®¡ç®—Gå€¼, å¦‚æœæ¯”åŸæ¥çš„å¤§, å°±ä»€ä¹ˆéƒ½ä¸åš, å¦åˆ™è®¾ç½®å®ƒçš„çˆ¶èŠ‚ç‚¹ä¸ºå½“å‰ç‚¹,å¹¶æ›´æ–°Gå’ŒF  
 			else
 			{
-				int tempG = calcG(curPoint, target);
-				if (tempG<target->G)
-				{
-					target->parent = curPoint;
+				/************ original code **********/
+                /*int tempG = CalcG(curPoint, target);
 
-					target->G = tempG;
-					target->F = calcF(target);
-				}
+                if (tempG < target->G)
+                {
+                    target->parent = curPoint;
+                    target->G = tempG;
+                    target->F = CalcF(target);
+                }*/
+                Point * temp_target; // 
+                temp_target = target;
+                temp_target->parent = curPoint;
+            
+                int tempG_now = CalcG(curPoint, temp_target);
+                
+                if (tempG_now < target->G)
+                {
+                    target->parent = curPoint;
+                    target->G = tempG_now;
+                    target->F = CalcF(target);
+                }
 			}
 			Point *resPoint = isInList(openList, &endPoint);
 			if (resPoint)
-				return resPoint; //·µ»ØÁĞ±íÀïµÄ½ÚµãÖ¸Õë£¬²»ÒªÓÃÔ­À´´«ÈëµÄendpointÖ¸Õë£¬ÒòÎª·¢ÉúÁËÉî¿½±´  
+				return resPoint; //è¿”å›åˆ—è¡¨é‡Œçš„èŠ‚ç‚¹æŒ‡é’ˆï¼Œä¸è¦ç”¨åŸæ¥ä¼ å…¥çš„endpointæŒ‡é’ˆï¼Œå› ä¸ºå‘ç”Ÿäº†æ·±æ‹·è´  
 		}
 	}
 
@@ -93,7 +106,7 @@ std::list<Point *> Astar::GetPath(Point &startPoint, Point &endPoint, bool isIgn
 {
 	Point *result = findPath(startPoint, endPoint, isIgnoreCorner);
 	std::list<Point *> path;
-	//·µ»ØÂ·¾¶£¬Èç¹ûÃ»ÕÒµ½Â·¾¶£¬·µ»Ø¿ÕÁ´±í  
+	//è¿”å›è·¯å¾„ï¼Œå¦‚æœæ²¡æ‰¾åˆ°è·¯å¾„ï¼Œè¿”å›ç©ºé“¾è¡¨  
 	while (result)
 	{
 		path.push_front(result);
@@ -106,7 +119,7 @@ std::list<Point *> Astar::GetPath(Point &startPoint, Point &endPoint, bool isIgn
 
 Point *Astar::isInList(const std::list<Point *> &list, const Point *point) const
 {
-	//ÅĞ¶ÏÄ³¸ö½ÚµãÊÇ·ñÔÚÁĞ±íÖĞ£¬ÕâÀï²»ÄÜ±È½ÏÖ¸Õë£¬ÒòÎªÃ¿´Î¼ÓÈëÁĞ±íÊÇĞÂ¿ª±ÙµÄ½Úµã£¬Ö»ÄÜ±È½Ï×ø±ê  
+	//åˆ¤æ–­æŸä¸ªèŠ‚ç‚¹æ˜¯å¦åœ¨åˆ—è¡¨ä¸­ï¼Œè¿™é‡Œä¸èƒ½æ¯”è¾ƒæŒ‡é’ˆï¼Œå› ä¸ºæ¯æ¬¡åŠ å…¥åˆ—è¡¨æ˜¯æ–°å¼€è¾Ÿçš„èŠ‚ç‚¹ï¼Œåªèƒ½æ¯”è¾ƒåæ ‡  
 	for (auto p : list)
 	if (p->x == point->x&&p->y == point->y)
 		return p;
@@ -119,15 +132,15 @@ bool Astar::isCanreach(const Point *point, const Point *target, bool isIgnoreCor
 		|| target->y<0 || target->y>maze[0].size() - 1
 		|| maze[target->x][target->y] == 1
 		|| target->x == point->x&&target->y == point->y
-		|| isInList(closeList, target)) //Èç¹ûµãÓëµ±Ç°½ÚµãÖØºÏ¡¢³¬³öµØÍ¼¡¢ÊÇÕÏ°­Îï¡¢»òÕßÔÚ¹Ø±ÕÁĞ±íÖĞ£¬·µ»Øfalse  
+		|| isInList(closeList, target)) //å¦‚æœç‚¹ä¸å½“å‰èŠ‚ç‚¹é‡åˆã€è¶…å‡ºåœ°å›¾ã€æ˜¯éšœç¢ç‰©ã€æˆ–è€…åœ¨å…³é—­åˆ—è¡¨ä¸­ï¼Œè¿”å›false  
 		return false;
 	else
 	{
-		if (abs(point->x - target->x) + abs(point->y - target->y) == 1) //·ÇĞ±½Ç¿ÉÒÔ  
+		if (abs(point->x - target->x) + abs(point->y - target->y) == 1) //éæ–œè§’å¯ä»¥  
 			return true;
 		else
 		{
-			//Ğ±¶Ô½ÇÒªÅĞ¶ÏÊÇ·ñ°í×¡  
+			//æ–œå¯¹è§’è¦åˆ¤æ–­æ˜¯å¦ç»Šä½  
 			if (maze[point->x][target->y] == 0 && maze[target->x][point->y] == 0)
 				return true;
 			else
